@@ -29,8 +29,8 @@ class RideFactory extends Factory
             'approved_at' => null,
             'started_at' => null,
             'finished_at' => null,
-            'pick_up_location' => Location::create(12.43, 96.43),
-//            'drop_off_location' => null,
+            'pick_up_location' => Location::create(12.43, 49.67),
+            'drop_off_location' => null,
         ];
     }
 }
