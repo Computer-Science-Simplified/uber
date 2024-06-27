@@ -13,7 +13,7 @@ class UpdateCurrentLocationController extends Controller
     {
         $location = $request->getLocation();
 
-        Redis::geoadd('driver-current-locations', $location->longitude, $location->latitude, $driver->id);
+        Redis::geoadd('drivers:current-locations', $location->longitude, $location->latitude, $driver->id);
 
         return response('', Response::HTTP_NO_CONTENT);
     }

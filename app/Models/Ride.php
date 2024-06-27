@@ -7,6 +7,7 @@ use App\ValueObjects\Location;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\DB;
 
 class Ride extends Model
@@ -24,6 +25,11 @@ class Ride extends Model
         return Attribute::make(
             set: fn (Location $value) => DB::raw("ST_GeomFromText('POINT({$value->longitude} {$value->latitude})')")
         );
+    }
+
+    public function driver(): BelongsTo
+    {
+        return $this->belongsTo(Driver::class);
     }
 
     public static function createWaiting(User $user, Location $pickUpLocation): self
