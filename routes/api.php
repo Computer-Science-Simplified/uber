@@ -10,3 +10,4 @@ Route::get('/test', function () {
 
 Route::patch('/drivers/{driver}/current-location', UpdateCurrentLocationController::class);
 Route::patch('/drivers/{driver}/check-in', CheckInController::class);
+Route::get('/foo/{ride}', [\App\Http\Controllers\RideController::class, 'foo']);

@@ -23,7 +23,16 @@ class Ride extends Model
     public function pickUpLocation(): Attribute
     {
         return Attribute::make(
-            set: fn (Location $value) => DB::raw("ST_GeomFromText('POINT({$value->longitude} {$value->latitude})')")
+            get: function ($value) {
+                $point = DB::selectOne("SELECT ST_AsText(pick_up_location) as location FROM rides WHERE id = ?", [$this->id]);
+
+                if ($point && isset($point->location)) {
+                    preg_match('/POINT\(([-\d\.]+) ([-\d\.]+)\)/', $point->location, $matches);
+
+                    return Location::create((float) $matches[1], (float) $matches[2]);
+                }
+            },
+            set: fn (Location $value) => DB::raw("ST_GeomFromText('POINT({$value->longitude} {$value->latitude})')"),
         );
     }
 
