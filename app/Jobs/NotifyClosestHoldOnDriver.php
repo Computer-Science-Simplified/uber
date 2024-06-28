@@ -6,6 +6,7 @@ use App\Enums\DriverStatus;
 use App\Models\Ride;
 use App\Notifications\RideRequestedNotification;
 use App\Services\LocationService;
+use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -27,6 +28,10 @@ class NotifyClosestHoldOnDriver implements ShouldQueue
     public function handle(LocationService $locationService): void
     {
         $drivers = $locationService->getClosestDrivers($this->ride, DriverStatus::OnHold, 10);
+
+        if ($drivers->isEmpty()) {
+            throw new Exception('No on-hold drivers');
+        }
 
         $drivers->each->notify(new RideRequestedNotification($this->ride));
     }
