@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ApproveRequest;
 use App\Http\Requests\CreateRideRequest;
 use App\Http\Requests\DropOffRequest;
+use App\Http\Requests\PickUpRequest;
 use App\Http\Resources\RideResource;
 use App\Models\Driver;
 use App\Models\Ride;
@@ -37,11 +39,18 @@ class RideController extends Controller
         );
     }
 
-    public function pickUp(Ride $ride)
+    public function approve(Ride $ride, ApproveRequest $request)
+    {
+        $ride->approved($request->getDriver(), $request->getCar());
+
+        return response('', Response::HTTP_NO_CONTENT);
+    }
+
+    public function pickUp(Ride $ride, PickUpRequest $request)
     {
         $ride->inProgress();
 
-        Redis::sdel('drivers:available', $ride->driver->id);
+        Redis::srem('drivers:available', $request->driver_id);
 
         return response('', Response::HTTP_NO_CONTENT);
     }

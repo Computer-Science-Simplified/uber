@@ -24,7 +24,7 @@ class RideTest extends TestCase
     {
         parent::tearDown();
 
-//        Redis::flushall();
+        Redis::flushall();
     }
 
     #[Test]
@@ -76,6 +76,88 @@ class RideTest extends TestCase
 
             return true;
         });
+    }
+
+    #[Test]
+    public function a_driver_can_approve_a_ride()
+    {
+        $ride = Ride::factory()->create([
+            'status' => RideStatus::Waiting,
+        ]);
+
+        $car = Car::factory()->create();
+
+        $driver = Driver::factory()->create();
+
+        $this->travelTo('2024-12-01 15:00:00', function () use ($ride, $car, $driver) {
+            $this->patchJson(
+                route('rides.approve', ['ride' => $ride->id]),
+                [
+                    'driver_id' => $driver->id,
+                    'car_id' => $car->id,
+                ],
+            )
+                ->assertStatus(Response::HTTP_NO_CONTENT);
+
+            $this->assertDatabaseHas('rides', [
+                'id' => $ride->id,
+                'status' => RideStatus::Approved,
+                'driver_id' => $driver->id,
+                'car_id' => $car->id,
+                'approved_at' => now(),
+            ]);
+        });
+    }
+
+    #[Test]
+    public function a_driver_can_pick_up_a_passenger()
+    {
+        $driver = Driver::factory()->create();
+
+        $ride = Ride::factory()->create([
+            'status' => RideStatus::Waiting,
+            'driver_id' => $driver->id,
+        ]);
+
+        $this->driverAvailableAt($driver, Location::create(1, 1));
+
+        $this->travelTo('2024-12-01 15:00:00', function () use ($ride, $driver) {
+            $this->patchJson(
+                route('rides.pick-up', ['ride' => $ride->id]),
+                [
+                    'driver_id' => $driver->id,
+                ],
+            );
+
+            $this->assertDatabaseHas('rides', [
+                'id' => $ride->id,
+                'status' => RideStatus::InProgress,
+                'driver_id' => $driver->id,
+                'started_at' => now(),
+            ]);
+        });
+    }
+
+    #[Test]
+    public function a_driver_should_become_unavailable_after_a_pickup()
+    {
+        $driver = Driver::factory()->create();
+
+        $ride = Ride::factory()->create([
+            'status' => RideStatus::Waiting,
+            'driver_id' => $driver->id,
+        ]);
+
+        $this->driverAvailableAt($driver, Location::create(1, 1));
+
+        $this->patchJson(
+            route('rides.pick-up', ['ride' => $ride->id]),
+            [
+                'driver_id' => $driver->id,
+            ],
+        );
+
+        $this->assertFalse(Redis::sismember('drivers:available', $driver->id));
     }
 
     private function driverAvailableAt(Driver $driver, Location $location): void
