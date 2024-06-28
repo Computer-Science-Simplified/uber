@@ -2,19 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\RedisKey;
 use App\Models\Driver;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Redis;
+use App\Services\DriverPoolService;
 
 class DriverController extends Controller
 {
-    public function status(Driver $driver)
+    public function status(Driver $driver, DriverPoolService $driverPool)
     {
-        $isAvailable = Redis::sismember(RedisKey::DriverPoolAvailable->value, $driver->id);
-
         return [
-            'available' => $isAvailable,
+            'data' => [
+                'status' => $driverPool->getStatus($driver),
+            ],
         ];
     }
 }
