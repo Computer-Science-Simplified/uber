@@ -12,16 +12,9 @@ class DropOffRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'driver_id' => ['required', 'exists:drivers,id'],
-            'car_id' => ['required', 'exists:cars,id'],
             'longitude' => ['required', 'numeric'],
             'latitude' => ['required', 'numeric'],
         ];
-    }
-
-    public function getDriver(): Driver
-    {
-        return Driver::findOrFail($this->driver_id);
     }
 
     public function getLocation(): Location

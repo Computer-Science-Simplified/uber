@@ -36,6 +36,26 @@ class Ride extends Model
         );
     }
 
+    public function dropOffLocation(): Attribute
+    {
+        return Attribute::make(
+            get: function ($value) {
+                $point = DB::selectOne("SELECT ST_AsText(drop_off_location) as location FROM rides WHERE id = ?", [$this->id]);
+
+                if ($point && isset($point->location)) {
+                    preg_match('/POINT\(([-\d\.]+) ([-\d\.]+)\)/', $point->location, $matches);
+
+                    return Location::create((float) $matches[1], (float) $matches[2]);
+                }
+            },
+            set: function (?Location $value) {
+                if ($value) {
+                    return DB::raw("ST_GeomFromText('POINT({$value->longitude} {$value->latitude})')");
+                }
+            },
+        );
+    }
+
     public function driver(): BelongsTo
     {
         return $this->belongsTo(Driver::class);

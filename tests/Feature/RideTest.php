@@ -22,9 +22,9 @@ class RideTest extends TestCase
 
     protected function tearDown(): void
     {
-        parent::tearDown();
-
         Redis::flushall();
+
+        parent::tearDown();
     }
 
     #[Test]
@@ -127,7 +127,8 @@ class RideTest extends TestCase
                 [
                     'driver_id' => $driver->id,
                 ],
-            );
+            )
+                ->assertStatus(Response::HTTP_NO_CONTENT);
 
             $this->assertDatabaseHas('rides', [
                 'id' => $ride->id,
@@ -155,9 +156,65 @@ class RideTest extends TestCase
             [
                 'driver_id' => $driver->id,
             ],
-        );
+        )
+            ->assertStatus(Response::HTTP_NO_CONTENT);
 
         $this->assertFalse(Redis::sismember('drivers:available', $driver->id));
+    }
+
+    #[Test]
+    public function a_driver_can_drop_off_a_passenger()
+    {
+        $driver = Driver::factory()->create();
+
+        $ride = Ride::factory()->create([
+            'status' => RideStatus::InProgress,
+            'driver_id' => $driver->id,
+        ]);
+
+        $this->driverUnavailable($driver);
+
+        $this->travelTo('2024-12-01 15:00:00', function () use ($ride, $driver) {
+            $this->patchJson(
+                route('rides.drop-off', ['ride' => $ride->id]),
+                [
+                    'longitude' => 2,
+                    'latitude' => 2,
+                ],
+            )
+                ->assertStatus(Response::HTTP_NO_CONTENT);
+
+            $this->assertDatabaseHas('rides', [
+                'id' => $ride->id,
+                'status' => RideStatus::Finished,
+                'driver_id' => $driver->id,
+                'finished_at' => now(),
+            ]);
+        });
+    }
+
+    #[Test]
+    public function a_driver_should_become_available_after_a_drop_off()
+    {
+        $driver = Driver::factory()->create();
+
+        $ride = Ride::factory()->create([
+            'status' => RideStatus::InProgress,
+            'driver_id' => $driver->id,
+        ]);
+
+        $this->driverUnavailable($driver);
+
+        $this->patchJson(
+            route('rides.drop-off', ['ride' => $ride->id]),
+            [
+                'longitude' => 2,
+                'latitude' => 2,
+            ],
+        )
+            ->assertStatus(Response::HTTP_NO_CONTENT);
+
+        $this->assertTrue(Redis::sismember('drivers:available', $driver->id));
     }
 
     private function driverAvailableAt(Driver $driver, Location $location): void
@@ -181,5 +238,10 @@ class RideTest extends TestCase
             ],
         )
             ->assertStatus(Response::HTTP_NO_CONTENT);
+    }
+
+    private function driverUnavailable(Driver $driver): void
+    {
+        Redis::srem('drivers:available', $driver->id);
     }
 }

@@ -14,3 +14,4 @@ Route::get('/drivers/{driver}/status', [\App\Http\Controllers\DriverController::
 Route::post('/ride', [\App\Http\Controllers\RideController::class, 'store'])->name('rides.store');
 Route::patch('rides/{ride}/approve', [\App\Http\Controllers\RideController::class, 'approve'])->name('rides.approve');
 Route::patch('rides/{ride}/pick-up', [\App\Http\Controllers\RideController::class, 'pickUp'])->name('rides.pick-up');
+Route::patch('rides/{ride}/drop-off', [\App\Http\Controllers\RideController::class, 'dropOff'])->name('rides.drop-off');
