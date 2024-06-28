@@ -24,7 +24,7 @@ class DriverPoolService
      */
     public function getOnHoldDriverIds(int $etaMin = 1 * 60, $etaMax = 15 * 60): Collection
     {
-        return collect(Redis::zrevrangebyscore(RedisKey::DriverPoolOnHold, $etaMin, $etaMax));
+        return collect(Redis::zrevrangebyscore(RedisKey::DriverPoolOnHold->value, $etaMax, $etaMin));
     }
 
     public function markAsAvailable(Driver $driver): void
