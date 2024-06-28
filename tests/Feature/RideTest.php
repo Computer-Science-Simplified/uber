@@ -250,27 +250,4 @@ class RideTest extends TestCase
 
         $this->assertSame(DriverStatus::Available, $this->driverPool->getStatus($driver));
     }
-
-    private function driverAvailableAt(Driver $driver, Location $location): void
-    {
-        $car = Car::factory()->create();
-
-        $this->patchJson(
-            route('drivers.check-in', ['driver' => $driver->id]),
-            [
-                'car_id' => $car->id,
-            ],
-        )
-            ->assertStatus(Response::HTTP_NO_CONTENT);
-
-        $this->patchJson(
-            route('drivers.update-current-location', ['driver' => $driver->id]),
-            [
-                'car_id' => $car->id,
-                'longitude' => $location->longitude,
-                'latitude' => $location->latitude,
-            ],
-        )
-            ->assertStatus(Response::HTTP_NO_CONTENT);
-    }
 }
