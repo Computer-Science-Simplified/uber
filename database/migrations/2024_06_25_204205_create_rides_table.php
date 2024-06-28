@@ -18,7 +18,7 @@ return new class extends Migration
             $table->foreignIdFor(Driver::class)->nullable()->constrained();
             $table->foreignIdFor(User::class)->constrained();
             $table->string('status')->default(RideStatus::Waiting);
-            $table->dateTime('approved_at')->nullable();
+            $table->dateTime('accepted_at')->nullable();
             $table->dateTime('started_at')->nullable();
             $table->dateTime('finished_at')->nullable();
             $table->geography('pick_up_location', 'point', 0);

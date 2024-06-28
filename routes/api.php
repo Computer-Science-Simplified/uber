@@ -14,6 +14,6 @@ Route::patch('/drivers/{driver}/current-location', UpdateCurrentLocationControll
 Route::patch('/drivers/{driver}/check-in', CheckInController::class)->name('drivers.check-in');
 Route::get('/drivers/{driver}/status', [DriverController::class, 'status']);
 Route::post('/ride', [RideController::class, 'store'])->name('rides.store');
-Route::patch('rides/{ride}/approve', [RideController::class, 'approve'])->name('rides.approve');
+Route::patch('rides/{ride}/accept', [RideController::class, 'accept'])->name('rides.accept');
 Route::patch('rides/{ride}/pick-up', [RideController::class, 'pickUp'])->name('rides.pick-up');
 Route::patch('rides/{ride}/drop-off', [RideController::class, 'dropOff'])->name('rides.drop-off');

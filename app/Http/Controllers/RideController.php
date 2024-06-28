@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\ApproveRequest;
+use App\Http\Requests\AcceptRideRequest;
 use App\Http\Requests\CreateRideRequest;
 use App\Http\Requests\DropOffRequest;
 use App\Http\Requests\PickUpRequest;
@@ -41,11 +41,11 @@ class RideController extends Controller
         );
     }
 
-    public function approve(Ride $ride, ApproveRequest $request)
+    public function accept(Ride $ride, AcceptRideRequest $request)
     {
         $driver = $request->getDriver();
 
-        $ride->approved($driver, $request->getCar());
+        $ride->accepted($driver, $request->getCar());
 
         $this->driverPool->markAsOnHold($driver);
 

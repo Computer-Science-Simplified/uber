@@ -70,13 +70,13 @@ class Ride extends Model
         ]);
     }
 
-    public function approved(Driver $driver, Car $car): void
+    public function accepted(Driver $driver, Car $car): void
     {
         $this->update([
-            'status' => RideStatus::Approved,
+            'status' => RideStatus::Accepted,
             'driver_id' => $driver->id,
             'car_id' => $car->id,
-            'approved_at' => now(),
+            'accepted_at' => now(),
         ]);
     }
 

@@ -4,10 +4,9 @@ namespace App\Http\Requests;
 
 use App\Models\Car;
 use App\Models\Driver;
-use App\ValueObjects\Location;
 use Illuminate\Foundation\Http\FormRequest;
 
-class ApproveRequest extends FormRequest
+class AcceptRideRequest extends FormRequest
 {
     public function rules(): array
     {

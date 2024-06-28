@@ -90,7 +90,7 @@ class RideTest extends TestCase
     }
 
     #[Test]
-    public function a_driver_can_approve_a_ride()
+    public function a_driver_can_accept_a_ride()
     {
         $ride = Ride::factory()->create([
             'status' => RideStatus::Waiting,
@@ -102,7 +102,7 @@ class RideTest extends TestCase
 
         $this->travelTo('2024-12-01 15:00:00', function () use ($ride, $car, $driver) {
             $this->patchJson(
-                route('rides.approve', ['ride' => $ride->id]),
+                route('rides.accept', ['ride' => $ride->id]),
                 [
                     'driver_id' => $driver->id,
                     'car_id' => $car->id,
@@ -112,10 +112,10 @@ class RideTest extends TestCase
 
             $this->assertDatabaseHas('rides', [
                 'id' => $ride->id,
-                'status' => RideStatus::Approved,
+                'status' => RideStatus::Accepted,
                 'driver_id' => $driver->id,
                 'car_id' => $car->id,
-                'approved_at' => now(),
+                'accepted_at' => now(),
             ]);
         });
     }
@@ -132,7 +132,7 @@ class RideTest extends TestCase
         $driver = Driver::factory()->create();
 
         $this->patchJson(
-            route('rides.approve', ['ride' => $ride->id]),
+            route('rides.accept', ['ride' => $ride->id]),
             [
                 'driver_id' => $driver->id,
                 'car_id' => $car->id,

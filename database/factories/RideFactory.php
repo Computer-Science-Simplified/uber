@@ -26,7 +26,7 @@ class RideFactory extends Factory
             'driver_id' => Driver::factory(),
             'user_id' => User::factory(),
             'status' => RideStatus::Waiting,
-            'approved_at' => null,
+            'accepted_at' => null,
             'started_at' => null,
             'finished_at' => null,
             'pick_up_location' => Location::create(19.0460277, 47.5097778),
