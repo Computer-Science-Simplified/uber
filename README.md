@@ -13,6 +13,7 @@ User kér egy fuvart:
 
 Tesztek:
 - User létre hoz egy "fuvar igényt"
+- Ilyenkor értesíteni kell a sofőrt
 - Sofőr elfogadja
 - Felveszi
 - Leadja

@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Redis;
 
 class DriverService
 {
-    public function getNearbyDriver(Ride $ride): Driver
+    public function getClosestDriver(Ride $ride): Driver
     {
         $availableDriverIds = collect(Redis::smembers('drivers:available'));
 
