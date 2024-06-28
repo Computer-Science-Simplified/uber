@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Enums\RedisKey;
 use App\Models\Car;
 use App\Models\Driver;
 use App\Services\DriverPoolService;
@@ -51,6 +52,6 @@ class UpdateCurrentLocationTest extends TestCase
         )
             ->assertStatus(Response::HTTP_NO_CONTENT);
 
-        $this->assertTrue(!!Redis::zscore('drivers:current-locations', $driver->id));
+        $this->assertTrue(!!Redis::zscore(RedisKey::DriverCurrentLocations->value, $driver->id));
     }
 }
