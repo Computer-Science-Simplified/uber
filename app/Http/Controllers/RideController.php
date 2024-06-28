@@ -7,7 +7,7 @@ use App\Http\Requests\CreateRideRequest;
 use App\Http\Requests\DropOffRequest;
 use App\Http\Requests\PickUpRequest;
 use App\Http\Resources\RideResource;
-use App\Jobs\NotifyClosestDriver;
+use App\Jobs\NotifyClosestAvailableDrivers;
 use App\Models\Ride;
 use App\Services\DriverPoolService;
 use Symfony\Component\HttpFoundation\Response;
@@ -25,7 +25,7 @@ class RideController extends Controller
             $request->getLocation(),
         );
 
-        NotifyClosestDriver::dispatch($ride);
+        NotifyClosestAvailableDrivers::dispatch($ride);
 
         return response(
             [

@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Enums\DriverStatus;
 use App\Models\Driver;
 use App\Models\Ride;
 use App\Models\User;
@@ -14,7 +15,7 @@ use PHPUnit\Framework\Attributes\Test;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\TestCase;
 
-class GetClosestDriverTest extends TestCase
+class GetClosestDriversTest extends TestCase
 {
     use RefreshDatabase;
 
@@ -70,7 +71,7 @@ class GetClosestDriverTest extends TestCase
 
         $this->driverAvailableAt($otherDriver, $otherDriverLocation);
 
-        $driver = $this->locationService->getClosestDriver($ride);
+        $driver = $this->locationService->getClosestDrivers($ride, DriverStatus::Available)->first();
 
         $this->assertSame($closestDriver->id, $driver->id);
     }
@@ -119,7 +120,7 @@ class GetClosestDriverTest extends TestCase
 
         $this->driverPool->markAsOnHold($nearByDriverOnHold);
 
-        $driver = $this->locationService->getClosestDriver($ride);
+        $driver = $this->locationService->getClosestDrivers($ride, DriverStatus::Available)->first();
 
         $this->assertSame($otherDriverAvailable->id, $driver->id);
     }

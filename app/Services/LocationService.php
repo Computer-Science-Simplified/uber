@@ -2,10 +2,12 @@
 
 namespace App\Services;
 
+use App\Enums\DriverStatus;
 use App\Enums\RedisKey;
 use App\Models\Driver;
 use App\Models\Ride;
 use App\ValueObjects\Location;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Redis;
 
 class LocationService
@@ -14,20 +16,32 @@ class LocationService
     {
     }
 
-    public function getClosestDriver(Ride $ride): Driver
+    /**
+     * @return Collection<Driver>
+     */
+    public function getClosestDrivers(Ride $ride, DriverStatus $status, int $radius = 5): Collection
     {
-        $availableDriverIds = $this->driverPool->getAvailableDriverIds();
+        $possibleDriverIds = match ($status) {
+            DriverStatus::Available => $this->driverPool->getAvailableDriverIds(),
+            DriverStatus::OnHold => $this->driverPool->getOnHoldDriverIds(),
+        };
 
         /** @var Location $location */
         $location = $ride->pick_up_location;
 
         $nearbyDriverIds = collect(
-            Redis::georadius(RedisKey::DriverCurrentLocations->value, $location->longitude, $location->latitude, 5, 'km')
+            Redis::georadius(
+                RedisKey::DriverCurrentLocations->value,
+                $location->longitude,
+                $location->latitude,
+                $radius,
+                'km',
+            ),
         );
 
-        $results = $availableDriverIds->intersect($nearbyDriverIds);
+        $driverIds = $possibleDriverIds->intersect($nearbyDriverIds);
 
-        return Driver::findOrFail($results->first());
+        return Driver::find($driverIds);
     }
 
     public function updateCurrentLocation(Driver $driver, Location $location): void
