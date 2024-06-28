@@ -28,7 +28,10 @@ class NotifyClosestAvailableDrivers implements ShouldQueue
 
     public function handle(LocationService $locationService): void
     {
-        $closestDrivers = $locationService->getClosestDrivers($this->ride, DriverStatus::Available);
+        $closestDrivers = $locationService->getClosestDrivers(
+            $this->ride->pick_up_location,
+            DriverStatus::Available,
+        );
 
         if ($closestDrivers->isEmpty()) {
             throw new Exception('No available drivers');
@@ -39,6 +42,6 @@ class NotifyClosestAvailableDrivers implements ShouldQueue
 
     public function failed(?Throwable $exception): void
     {
-        NotifyClosestHoldOnDriver::dispatch($this->ride);
+        NotifyClosestHoldOnDrivers::dispatch($this->ride);
     }
 }

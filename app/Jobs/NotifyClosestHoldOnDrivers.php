@@ -13,7 +13,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
-class NotifyClosestHoldOnDriver implements ShouldQueue
+class NotifyClosestHoldOnDrivers implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -27,7 +27,11 @@ class NotifyClosestHoldOnDriver implements ShouldQueue
 
     public function handle(LocationService $locationService): void
     {
-        $drivers = $locationService->getClosestDrivers($this->ride, DriverStatus::OnHold, 10);
+        $drivers = $locationService->getClosestDrivers(
+            $this->ride->pick_up_location,
+            DriverStatus::OnHold,
+            10,
+        );
 
         if ($drivers->isEmpty()) {
             throw new Exception('No on-hold drivers');

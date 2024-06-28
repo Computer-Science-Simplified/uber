@@ -19,15 +19,12 @@ class LocationService
     /**
      * @return Collection<Driver>
      */
-    public function getClosestDrivers(Ride $ride, DriverStatus $status, int $radius = 5): Collection
+    public function getClosestDrivers(Location $location, DriverStatus $status, int $radius = 5): Collection
     {
         $possibleDriverIds = match ($status) {
             DriverStatus::Available => $this->driverPool->getAvailableDriverIds(),
             DriverStatus::OnHold => $this->driverPool->getOnHoldDriverIds(),
         };
-
-        /** @var Location $location */
-        $location = $ride->pick_up_location;
 
         $nearbyDriverIds = collect(
             Redis::georadius(
@@ -39,9 +36,7 @@ class LocationService
             ),
         );
 
-        $driverIds = $possibleDriverIds->intersect($nearbyDriverIds);
-
-        return Driver::find($driverIds);
+        return Driver::find($possibleDriverIds->intersect($nearbyDriverIds));
     }
 
     public function updateCurrentLocation(Driver $driver, Location $location): void
