@@ -45,17 +45,11 @@ class GetClosestDriversTest extends TestCase
 
         $this->actingAs($user);
 
-        // Budapest, Szechenyi Rakpart
-        $pickUpLocation = Location::create(47.5097778, 19.0460277);
-
-        $data = $this->postJson(route('rides.store'), [
-            'longitude' => $pickUpLocation->longitude,
-            'latitude' => $pickUpLocation->latitude,
-        ])
-            ->assertStatus(Response::HTTP_CREATED)
-            ->json('data');
-
-        $ride = Ride::find($data['id']);
+        $ride = Ride::factory()->create([
+            'user_id' => $user->id,
+            // Budapest, Szechenyi Rakpart
+            'pick_up_location' => Location::create(47.5097778, 19.0460277),
+        ]);
 
         $closestDriver = Driver::factory()->create();
 
@@ -71,7 +65,7 @@ class GetClosestDriversTest extends TestCase
 
         $this->driverAvailableAt($otherDriver, $otherDriverLocation);
 
-        $driver = $this->locationService->getClosestDrivers($ride, DriverStatus::Available)->first();
+        $driver = $this->locationService->getClosestDrivers($ride->pick_up_location, DriverStatus::Available)->first();
 
         $this->assertSame($closestDriver->id, $driver->id);
     }
@@ -83,17 +77,11 @@ class GetClosestDriversTest extends TestCase
 
         $this->actingAs($user);
 
-        // Budapest, Szechenyi Rakpart
-        $pickUpLocation = Location::create(47.5097778, 19.0460277);
-
-        $data = $this->postJson(route('rides.store'), [
-            'longitude' => $pickUpLocation->longitude,
-            'latitude' => $pickUpLocation->latitude,
-        ])
-            ->assertStatus(Response::HTTP_CREATED)
-            ->json('data');
-
-        $ride = Ride::find($data['id']);
+        $ride = Ride::factory()->create([
+            'user_id' => $user->id,
+            // Budapest, Szechenyi Rakpart
+            'pick_up_location' => Location::create(47.5097778, 19.0460277),
+        ]);
 
         $closestDriverNotAvailable = Driver::factory()->create();
 
@@ -120,7 +108,7 @@ class GetClosestDriversTest extends TestCase
 
         $this->driverPool->markAsOnHold($nearByDriverOnHold);
 
-        $driver = $this->locationService->getClosestDrivers($ride, DriverStatus::Available)->first();
+        $driver = $this->locationService->getClosestDrivers($ride->pick_up_location, DriverStatus::Available)->first();
 
         $this->assertSame($otherDriverAvailable->id, $driver->id);
     }

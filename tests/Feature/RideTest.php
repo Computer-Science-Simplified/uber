@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Enums\DriverStatus;
 use App\Enums\RideStatus;
+use App\Jobs\NotifyClosestAvailableDrivers;
 use App\Models\Car;
 use App\Models\Driver;
 use App\Models\Ride;
@@ -13,6 +14,7 @@ use App\Services\DriverPoolService;
 use App\ValueObjects\Location;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Redis;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\TestCase;
@@ -41,6 +43,8 @@ class RideTest extends TestCase
     #[Test]
     public function a_user_can_request_a_new_ride()
     {
+        Queue::fake();
+
         $user = User::factory()->create();
 
         $this->actingAs($user);
@@ -58,6 +62,8 @@ class RideTest extends TestCase
             'driver_id' => null,
             'car_id' => null,
         ]);
+
+        Queue::assertPushed(NotifyClosestAvailableDrivers::class);
     }
 
     #[Test]
