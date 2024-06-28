@@ -14,8 +14,8 @@ return new class extends Migration
     {
         Schema::create('rides', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(Car::class)->constrained();
-            $table->foreignIdFor(Driver::class)->constrained();
+            $table->foreignIdFor(Car::class)->nullable()->constrained();
+            $table->foreignIdFor(Driver::class)->nullable()->constrained();
             $table->foreignIdFor(User::class)->constrained();
             $table->string('status')->default(RideStatus::Waiting);
             $table->dateTime('approved_at')->nullable();

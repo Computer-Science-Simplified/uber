@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateRideRequest;
 use App\Http\Requests\DropOffRequest;
+use App\Http\Resources\RideResource;
 use App\Models\Driver;
 use App\Models\Ride;
 use App\ValueObjects\Location;
@@ -19,21 +20,12 @@ class RideController extends Controller
             $request->getLocation(),
         );
 
-        return response($ride, Response::HTTP_CREATED);
-    }
-
-    public function foo(Ride $ride)
-    {
-        $availableDriverIds = collect(Redis::smembers('drivers:available'));
-
-        /** @var Location $location */
-        $location = $ride->pick_up_location;
-
-        $nearbyDriverIds = collect(Redis::georadius('drivers:current-locations', $location->longitude, $location->latitude, 5, 'km'));
-
-        $results = $availableDriverIds->intersect($nearbyDriverIds);
-
-        return Driver::find($results->first());
+        return response(
+            [
+                'data' => RideResource::make($ride)
+            ],
+            Response::HTTP_CREATED
+        );
     }
 
     public function pickUp(Ride $ride)

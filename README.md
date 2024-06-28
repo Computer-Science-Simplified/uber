@@ -10,3 +10,9 @@ User kér egy fuvart:
 - Távolság meghatározása
 - Legközelebbi sofőr küldése
 - Ha nincs szabad sofőr akkor not available sofőr legkisebb ETA -val
+
+Tesztek:
+- User létre hoz egy "fuvar igényt"
+- Sofőr elfogadja
+- Felveszi
+- Leadja
