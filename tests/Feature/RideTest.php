@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Enums\DriverStatus;
 use App\Enums\RideStatus;
 use App\Models\Car;
 use App\Models\Driver;
@@ -120,6 +121,29 @@ class RideTest extends TestCase
     }
 
     #[Test]
+    public function a_driver_should_be_on_hold_after_approving_a_ride()
+    {
+        $ride = Ride::factory()->create([
+            'status' => RideStatus::Waiting,
+        ]);
+
+        $car = Car::factory()->create();
+
+        $driver = Driver::factory()->create();
+
+        $this->patchJson(
+            route('rides.approve', ['ride' => $ride->id]),
+            [
+                'driver_id' => $driver->id,
+                'car_id' => $car->id,
+            ],
+        )
+            ->assertStatus(Response::HTTP_NO_CONTENT);
+
+        $this->assertSame(DriverStatus::OnHold, $this->driverPool->getStatus($driver));
+    }
+
+    #[Test]
     public function a_driver_can_pickup_a_passenger()
     {
         $driver = Driver::factory()->create();
@@ -169,7 +193,7 @@ class RideTest extends TestCase
         )
             ->assertStatus(Response::HTTP_NO_CONTENT);
 
-        $this->assertFalse($this->driverPool->isAvailable($driver));
+        $this->assertSame(DriverStatus::Unavailable, $this->driverPool->getStatus($driver));
     }
 
     #[Test]
@@ -224,7 +248,7 @@ class RideTest extends TestCase
         )
             ->assertStatus(Response::HTTP_NO_CONTENT);
 
-        $this->assertTrue($this->driverPool->isAvailable($driver));
+        $this->assertSame(DriverStatus::Available, $this->driverPool->getStatus($driver));
     }
 
     private function driverAvailableAt(Driver $driver, Location $location): void

@@ -43,7 +43,11 @@ class RideController extends Controller
 
     public function approve(Ride $ride, ApproveRequest $request)
     {
-        $ride->approved($request->getDriver(), $request->getCar());
+        $driver = $request->getDriver();
+
+        $ride->approved($driver, $request->getCar());
+
+        $this->driverPool->markAsOnHold($driver);
 
         return response('', Response::HTTP_NO_CONTENT);
     }
