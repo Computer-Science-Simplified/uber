@@ -7,11 +7,9 @@ use App\Http\Requests\CreateRideRequest;
 use App\Http\Requests\DropOffRequest;
 use App\Http\Requests\PickUpRequest;
 use App\Http\Resources\RideResource;
+use App\Jobs\NotifyClosestDriver;
 use App\Models\Ride;
-use App\Notifications\RideRequestedNotification;
 use App\Services\DriverPoolService;
-use App\Services\LocationService;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Symfony\Component\HttpFoundation\Response;
 
 class RideController extends Controller
@@ -20,18 +18,14 @@ class RideController extends Controller
     {
     }
 
-    public function store(CreateRideRequest $request, LocationService $driverService)
+    public function store(CreateRideRequest $request)
     {
         $ride = Ride::createWaiting(
             $request->user(),
             $request->getLocation(),
         );
 
-        try {
-            $closestDriver = $driverService->getClosestDriver($ride);
-
-            $closestDriver->notify(new RideRequestedNotification($ride));
-        } catch (ModelNotFoundException) {}
+        NotifyClosestDriver::dispatch($ride);
 
         return response(
             [

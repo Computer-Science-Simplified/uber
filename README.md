@@ -17,3 +17,9 @@ Tesztek:
 - Sofőr elfogadja
 - Felveszi
 - Leadja
+
+Mi történik ha egy fuvar accepted állapotban ragad
+
+Mi történik ha épp nincs elérhető sofőr?
+- X időközönként meg kell nézni hogy van -e elérhető sofőr
+- Ha nincs akkor választani kell egy olyat aki épp "on-hold" és kicsi ETA
