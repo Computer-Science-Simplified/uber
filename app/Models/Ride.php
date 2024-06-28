@@ -18,6 +18,9 @@ class Ride extends Model
 
     protected $casts = [
         'status' => RideStatus::class,
+        'accepted_at' => 'datetime',
+        'started_at' => 'datetime',
+        'finished_at' => 'datetime',
     ];
 
     public function pickUpLocation(): Attribute
