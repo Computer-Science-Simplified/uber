@@ -110,7 +110,7 @@ class RideTest extends TestCase
     }
 
     #[Test]
-    public function a_driver_can_pick_up_a_passenger()
+    public function a_driver_can_pickup_a_passenger()
     {
         $driver = Driver::factory()->create();
 
@@ -160,6 +160,8 @@ class RideTest extends TestCase
             ->assertStatus(Response::HTTP_NO_CONTENT);
 
         $this->assertFalse(Redis::sismember('drivers:available', $driver->id));
+
+        $this->assertTrue(!!Redis::zscore('drivers:unavailable', $driver->id));
     }
 
     #[Test]
@@ -215,6 +217,8 @@ class RideTest extends TestCase
             ->assertStatus(Response::HTTP_NO_CONTENT);
 
         $this->assertTrue(Redis::sismember('drivers:available', $driver->id));
+
+        $this->assertFalse(!!Redis::zscore('drivers:unavailable', $driver->id));
     }
 
     private function driverAvailableAt(Driver $driver, Location $location): void
@@ -243,5 +247,7 @@ class RideTest extends TestCase
     private function driverUnavailable(Driver $driver): void
     {
         Redis::srem('drivers:available', $driver->id);
+
+        Redis::zadd('drivers:unavailable', 10 * 60, $driver->id);
     }
 }

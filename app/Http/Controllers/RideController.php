@@ -7,11 +7,9 @@ use App\Http\Requests\CreateRideRequest;
 use App\Http\Requests\DropOffRequest;
 use App\Http\Requests\PickUpRequest;
 use App\Http\Resources\RideResource;
-use App\Models\Driver;
 use App\Models\Ride;
 use App\Notifications\RideRequestedNotification;
 use App\Services\DriverService;
-use App\ValueObjects\Location;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Redis;
 use Symfony\Component\HttpFoundation\Response;
@@ -52,6 +50,8 @@ class RideController extends Controller
 
         Redis::srem('drivers:available', $request->driver_id);
 
+        Redis::zadd('drivers:unavailable', 10 * 60, $request->driver_id);
+
         return response('', Response::HTTP_NO_CONTENT);
     }
 
@@ -60,6 +60,8 @@ class RideController extends Controller
         $ride->finished($request->getLocation());
 
         Redis::sadd('drivers:available', $ride->driver->id);
+
+        Redis::zrem('drivers:unavailable', $ride->driver->id);
 
         return response('', Response::HTTP_NO_CONTENT);
     }

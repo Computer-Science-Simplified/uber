@@ -13,6 +13,8 @@ class CheckInController extends Controller
     {
         Redis::sadd('drivers:available', $driver->id);
 
+        Redis::zrem('drivers:unavailable', $driver->id);
+
         return response('', Response::HTTP_NO_CONTENT);
     }
 }
