@@ -8,4 +8,6 @@ enum RideStatus: string
     case Accepted = 'accepted';
     case InProgress = 'in-progress';
     case Finished = 'finished';
+
+    case Abandoned = 'abandoned';
 }

@@ -23,6 +23,7 @@ return new class extends Migration
             $table->dateTime('finished_at')->nullable();
             $table->geography('pick_up_location', 'point', 0);
             $table->geography('drop_off_location', 'point', 0)->nullable();
+            $table->boolean('reminder_sent');
             $table->timestamps();
 
             $table->spatialIndex('pick_up_location');

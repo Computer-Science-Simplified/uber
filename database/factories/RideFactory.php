@@ -26,7 +26,7 @@ class RideFactory extends Factory
             'driver_id' => Driver::factory(),
             'user_id' => User::factory(),
             'status' => RideStatus::Waiting,
-            'accepted_at' => null,
+            'accepted_at' => now()->subMinutes(20),
             'started_at' => null,
             'finished_at' => null,
             'pick_up_location' => Location::create(19.0460277, 47.5097778),
