@@ -8,6 +8,7 @@ use App\Models\Driver;
 use App\Models\Ride;
 use App\Models\User;
 use App\Notifications\RideRequestedNotification;
+use App\Services\DriverPoolService;
 use App\ValueObjects\Location;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
@@ -19,6 +20,15 @@ use PHPUnit\Framework\Attributes\Test;
 class RideTest extends TestCase
 {
     use RefreshDatabase;
+
+    private DriverPoolService $driverPool;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->driverPool = app(DriverPoolService::class);
+    }
 
     protected function tearDown(): void
     {
@@ -159,9 +169,7 @@ class RideTest extends TestCase
         )
             ->assertStatus(Response::HTTP_NO_CONTENT);
 
-        $this->assertFalse(Redis::sismember('drivers:available', $driver->id));
-
-        $this->assertTrue(!!Redis::zscore('drivers:unavailable', $driver->id));
+        $this->assertFalse($this->driverPool->isAvailable($driver));
     }
 
     #[Test]
@@ -174,7 +182,7 @@ class RideTest extends TestCase
             'driver_id' => $driver->id,
         ]);
 
-        $this->driverUnavailable($driver);
+        $this->driverPool->markAsUnavailable($driver);
 
         $this->travelTo('2024-12-01 15:00:00', function () use ($ride, $driver) {
             $this->patchJson(
@@ -205,7 +213,7 @@ class RideTest extends TestCase
             'driver_id' => $driver->id,
         ]);
 
-        $this->driverUnavailable($driver);
+        $this->driverPool->markAsUnavailable($driver);
 
         $this->patchJson(
             route('rides.drop-off', ['ride' => $ride->id]),
@@ -216,9 +224,7 @@ class RideTest extends TestCase
         )
             ->assertStatus(Response::HTTP_NO_CONTENT);
 
-        $this->assertTrue(Redis::sismember('drivers:available', $driver->id));
-
-        $this->assertFalse(!!Redis::zscore('drivers:unavailable', $driver->id));
+        $this->assertTrue($this->driverPool->isAvailable($driver));
     }
 
     private function driverAvailableAt(Driver $driver, Location $location): void
@@ -242,12 +248,5 @@ class RideTest extends TestCase
             ],
         )
             ->assertStatus(Response::HTTP_NO_CONTENT);
-    }
-
-    private function driverUnavailable(Driver $driver): void
-    {
-        Redis::srem('drivers:available', $driver->id);
-
-        Redis::zadd('drivers:unavailable', 10 * 60, $driver->id);
     }
 }

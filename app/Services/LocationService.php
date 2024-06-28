@@ -7,7 +7,7 @@ use App\Models\Ride;
 use App\ValueObjects\Location;
 use Illuminate\Support\Facades\Redis;
 
-class DriverService
+class LocationService
 {
     public function getClosestDriver(Ride $ride): Driver
     {

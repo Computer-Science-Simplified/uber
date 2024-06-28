@@ -9,14 +9,18 @@ use App\Http\Requests\PickUpRequest;
 use App\Http\Resources\RideResource;
 use App\Models\Ride;
 use App\Notifications\RideRequestedNotification;
-use App\Services\DriverService;
+use App\Services\DriverPoolService;
+use App\Services\LocationService;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Support\Facades\Redis;
 use Symfony\Component\HttpFoundation\Response;
 
 class RideController extends Controller
 {
-    public function store(CreateRideRequest $request, DriverService $driverService)
+    public function __construct(private DriverPoolService $driverPool)
+    {
+    }
+
+    public function store(CreateRideRequest $request, LocationService $driverService)
     {
         $ride = Ride::createWaiting(
             $request->user(),
@@ -48,9 +52,7 @@ class RideController extends Controller
     {
         $ride->inProgress();
 
-        Redis::srem('drivers:available', $request->driver_id);
-
-        Redis::zadd('drivers:unavailable', 10 * 60, $request->driver_id);
+        $this->driverPool->markAsUnavailable($request->getDriver());
 
         return response('', Response::HTTP_NO_CONTENT);
     }
@@ -59,9 +61,7 @@ class RideController extends Controller
     {
         $ride->finished($request->getLocation());
 
-        Redis::sadd('drivers:available', $ride->driver->id);
-
-        Redis::zrem('drivers:unavailable', $ride->driver->id);
+        $this->driverPool->markAsAvailable($ride->driver);
 
         return response('', Response::HTTP_NO_CONTENT);
     }
