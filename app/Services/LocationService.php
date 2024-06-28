@@ -22,4 +22,9 @@ class LocationService
 
         return Driver::findOrFail($results->first());
     }
+
+    public function updateCurrentLocation(Driver $driver, Location $location): void
+    {
+        Redis::geoadd('drivers:current-locations', $location->longitude, $location->latitude, $driver->id);
+    }
 }
