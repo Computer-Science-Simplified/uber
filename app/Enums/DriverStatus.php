@@ -9,4 +9,6 @@ enum DriverStatus: string
     case OnHold = 'on-hold';
 
     case Unavailable = 'unavailable';
+
+    case NotInPool = 'not-in-pool';
 }

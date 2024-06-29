@@ -102,6 +102,6 @@ class DriverPoolService
             return DriverStatus::Unavailable;
         }
 
-        throw new UnexpectedValueException("Invalid status for driver [$driver->id]");
+        return DriverStatus::NotInPool;
     }
 }
