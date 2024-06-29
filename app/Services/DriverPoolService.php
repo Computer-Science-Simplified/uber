@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Enums\DriverStatus;
 use App\Enums\RedisKey;
 use App\Models\Driver;
+use App\ValueObjects\Eta;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Redis;
 use UnexpectedValueException;
@@ -22,10 +23,25 @@ class DriverPoolService
     /**
      * @return Collection<Driver>
      */
-    public function getOnHoldDriverIds(int $etaMin = 1 * 60, $etaMax = 15 * 60): Collection
+    public function getOnHoldDriverIds(?Eta $etaMin = null, ?Eta $etaMax = null): Collection
     {
-        return collect(Redis::zrevrangebyscore(RedisKey::DriverPoolOnHold->value, $etaMax, $etaMin));
+        if (!$etaMin) {
+            $etaMin = Eta::oneMinute();
+        }
+
+        if (!$etaMax) {
+            $etaMax = Eta::fifteenMinutes();
+        }
+
+        return collect(
+            Redis::zrevrangebyscore(
+                RedisKey::DriverPoolOnHold->value,
+                $etaMax->timestamp,
+                $etaMin->timestamp,
+            ),
+        );
     }
+
 
     public function markAsAvailable(Driver $driver): void
     {
@@ -36,18 +52,26 @@ class DriverPoolService
         Redis::zrem(RedisKey::DriverPoolOnHold->value, $driver->id);
     }
 
-    public function markAsUnavailable(Driver $driver, int $eta = 15 * 60): void
+    public function markAsUnavailable(Driver $driver, ?Eta $eta = null): void
     {
-        Redis::zadd(RedisKey::DriverPoolUnavailable->value, $eta, $driver->id);
+        if (!$eta) {
+            $eta = Eta::fifteenMinutes();
+        }
+
+        Redis::zadd(RedisKey::DriverPoolUnavailable->value, $eta->timestamp, $driver->id);
 
         Redis::srem(RedisKey::DriverPoolAvailable->value, $driver->id);
 
         Redis::zrem(RedisKey::DriverPoolOnHold->value, $driver->id);
     }
 
-    public function markAsOnHold(Driver $driver, int $eta = 5 * 60): void
+    public function markAsOnHold(Driver $driver, ?Eta $eta = null): void
     {
-        Redis::zadd(RedisKey::DriverPoolOnHold->value, $eta, $driver->id);
+        if (!$eta) {
+            $eta = Eta::fiveMinutes();
+        }
+
+        Redis::zadd(RedisKey::DriverPoolOnHold->value, $eta->timestamp, $driver->id);
 
         Redis::srem(RedisKey::DriverPoolAvailable->value, $driver->id);
 
