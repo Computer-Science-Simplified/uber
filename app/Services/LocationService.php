@@ -5,7 +5,6 @@ namespace App\Services;
 use App\Enums\DriverStatus;
 use App\Enums\RedisKey;
 use App\Models\Driver;
-use App\Models\Ride;
 use App\ValueObjects\Location;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Redis;
@@ -41,6 +40,11 @@ class LocationService
 
     public function updateCurrentLocation(Driver $driver, Location $location): void
     {
-        Redis::geoadd(RedisKey::DriverCurrentLocations->value, $location->longitude, $location->latitude, $driver->id);
+        Redis::geoadd(
+            RedisKey::DriverCurrentLocations->value,
+            $location->longitude,
+            $location->latitude,
+            $driver->id,
+        );
     }
 }

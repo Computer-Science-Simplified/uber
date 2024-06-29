@@ -42,7 +42,6 @@ class DriverPoolService
         );
     }
 
-
     public function markAsAvailable(Driver $driver): void
     {
         Redis::sadd(RedisKey::DriverPoolAvailable->value, $driver->id);
@@ -76,6 +75,17 @@ class DriverPoolService
         Redis::srem(RedisKey::DriverPoolAvailable->value, $driver->id);
 
         Redis::zrem(RedisKey::DriverPoolUnavailable->value, $driver->id);
+    }
+
+    public function remove(Driver $driver): void
+    {
+        Redis::zrem(RedisKey::DriverPoolOnHold->value, $driver->id);
+
+        Redis::srem(RedisKey::DriverPoolAvailable->value, $driver->id);
+
+        Redis::zrem(RedisKey::DriverPoolUnavailable->value, $driver->id);
+
+        Redis::zrem(RedisKey::DriverCurrentLocations->value, $driver->id);
     }
 
     public function getStatus(Driver $driver): DriverStatus
