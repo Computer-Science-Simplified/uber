@@ -10,12 +10,14 @@ use App\Http\Resources\RideResource;
 use App\Jobs\NotifyClosestAvailableDriversJob;
 use App\Models\Ride;
 use App\Services\DriverPoolService;
+use App\Services\RideStateMachine;
 use Symfony\Component\HttpFoundation\Response;
 
 class RideController extends Controller
 {
-    public function __construct(private DriverPoolService $driverPool)
-    {
+    public function __construct(
+        private DriverPoolService $driverPool
+    ) {
     }
 
     public function store(CreateRideRequest $request)
@@ -39,7 +41,11 @@ class RideController extends Controller
     {
         $driver = $request->getDriver();
 
-        $ride->accepted($driver, $request->getCar());
+        $rideStateMachine = new RideStateMachine($ride);
+
+        if ($rideStateMachine->can('accept')) {
+            $ride->accepted($driver, $request->getCar());
+        }
 
         $this->driverPool->moveToOnHold($driver);
 
@@ -48,7 +54,11 @@ class RideController extends Controller
 
     public function pickUp(Ride $ride, PickUpRequest $request)
     {
-        $ride->inProgress();
+        $rideStateMachine = new RideStateMachine($ride);
+
+        if ($rideStateMachine->can('progress')) {
+            $ride->inProgress();
+        }
 
         $this->driverPool->moveToUnavailable($request->getDriver());
 
@@ -57,7 +67,11 @@ class RideController extends Controller
 
     public function dropOff(Ride $ride, DropOffRequest $request)
     {
-        $ride->finished($request->getLocation());
+        $rideStateMachine = new RideStateMachine($ride);
+
+        if ($rideStateMachine->can('finish')) {
+            $ride->finished($request->getLocation());
+        }
 
         $this->driverPool->moveToAvailable($ride->driver);
 

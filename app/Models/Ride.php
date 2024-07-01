@@ -4,13 +4,14 @@ namespace App\Models;
 
 use App\Enums\RideStatus;
 use App\ValueObjects\Location;
+use Finite\StatefulInterface;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\DB;
 
-class Ride extends Model
+class Ride extends Model implements StatefulInterface
 {
     use HasFactory;
 
@@ -98,5 +99,15 @@ class Ride extends Model
             'finished_at' => now(),
             'drop_off_location' => $dropOffLocation,
         ]);
+    }
+
+    public function getFiniteState()
+    {
+        return $this->status?->value;
+    }
+
+    public function setFiniteState($state)
+    {
+        $this->status = RideStatus::from($state);
     }
 }

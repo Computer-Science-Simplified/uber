@@ -155,7 +155,7 @@ class RideTest extends TestCase
         $driver = Driver::factory()->create();
 
         $ride = Ride::factory()->create([
-            'status' => RideStatus::Waiting,
+            'status' => RideStatus::Accepted,
             'driver_id' => $driver->id,
         ]);
 
