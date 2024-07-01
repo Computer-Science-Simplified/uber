@@ -14,7 +14,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Throwable;
 
-class NotifyClosestAvailableDrivers implements ShouldQueue
+class NotifyClosestAvailableDriversJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -42,6 +42,6 @@ class NotifyClosestAvailableDrivers implements ShouldQueue
 
     public function failed(?Throwable $exception): void
     {
-        NotifyClosestHoldOnDrivers::dispatch($this->ride);
+        NotifyClosestUnavailableDriversJob::dispatch($this->ride);
     }
 }

@@ -12,7 +12,6 @@ class UpdateCurrentLocationRequest extends FormRequest
         return [
             'longitude' => ['required', 'numeric'],
             'latitude' => ['required', 'numeric'],
-            'car_id' => ['required', 'exists:cars,id'],
         ];
     }
 

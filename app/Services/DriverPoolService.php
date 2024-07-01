@@ -8,7 +8,6 @@ use App\Models\Driver;
 use App\ValueObjects\Eta;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Redis;
-use UnexpectedValueException;
 
 class DriverPoolService
 {
@@ -23,7 +22,7 @@ class DriverPoolService
     /**
      * @return Collection<Driver>
      */
-    public function getOnHoldDriverIds(?Eta $etaMin = null, ?Eta $etaMax = null): Collection
+    public function getUnavailableDriverIds(?Eta $etaMin = null, ?Eta $etaMax = null): Collection
     {
         if (!$etaMin) {
             $etaMin = Eta::oneMinute();
@@ -34,8 +33,8 @@ class DriverPoolService
         }
 
         return collect(
-            Redis::zrevrangebyscore(
-                RedisKey::DriverPoolOnHold->value,
+            Redis::zrangebyscore(
+                RedisKey::DriverPoolUnavailable->value,
                 $etaMax->timestamp,
                 $etaMin->timestamp,
             ),

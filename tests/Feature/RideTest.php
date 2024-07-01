@@ -4,7 +4,7 @@ namespace Tests\Feature;
 
 use App\Enums\DriverStatus;
 use App\Enums\RideStatus;
-use App\Jobs\NotifyClosestAvailableDrivers;
+use App\Jobs\NotifyClosestAvailableDriversJob;
 use App\Models\Car;
 use App\Models\Driver;
 use App\Models\Ride;
@@ -63,7 +63,7 @@ class RideTest extends TestCase
             'car_id' => null,
         ]);
 
-        Queue::assertPushed(NotifyClosestAvailableDrivers::class);
+        Queue::assertPushed(NotifyClosestAvailableDriversJob::class);
     }
 
     #[Test]

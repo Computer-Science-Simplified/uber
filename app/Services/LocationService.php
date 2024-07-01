@@ -22,17 +22,20 @@ class LocationService
     {
         $possibleDriverIds = match ($status) {
             DriverStatus::Available => $this->driverPool->getAvailableDriverIds(),
-            DriverStatus::OnHold => $this->driverPool->getOnHoldDriverIds(),
+            DriverStatus::Unavailable => $this->driverPool->getUnavailableDriverIds(),
         };
 
-        $nearbyDriverIds = collect(
-            Redis::georadius(
-                RedisKey::DriverCurrentLocations->value,
+        $nearbyDriverIds = Redis::geosearch(
+            RedisKey::DriverCurrentLocations->value,
+            [
                 $location->longitude,
                 $location->latitude,
-                $radius,
-                'km',
-            ),
+            ],
+            $radius,
+            'km',
+            [
+                'BYRADIUS',
+            ],
         );
 
         return Driver::find($possibleDriverIds->intersect($nearbyDriverIds));
