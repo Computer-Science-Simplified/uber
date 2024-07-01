@@ -4,8 +4,9 @@ namespace App\Services;
 
 use App\Enums\DriverStatus;
 use App\Enums\RedisKey;
+use App\Models\Car;
 use App\Models\Driver;
-use App\ValueObjects\Eta;
+use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Redis;
 
@@ -22,14 +23,14 @@ class DriverPoolService
     /**
      * @return Collection<Driver>
      */
-    public function getUnavailableDriverIds(?Eta $etaMin = null, ?Eta $etaMax = null): Collection
+    public function getUnavailableDriverIds(?Carbon $etaMin = null, ?Carbon $etaMax = null): Collection
     {
         if (!$etaMin) {
-            $etaMin = Eta::oneMinute();
+            $etaMin = now();
         }
 
         if (!$etaMax) {
-            $etaMax = Eta::fifteenMinutes();
+            $etaMax = now()->addMinutes(15);
         }
 
         return collect(
@@ -50,10 +51,10 @@ class DriverPoolService
         Redis::zrem(RedisKey::DriverPoolOnHold->value, $driver->id);
     }
 
-    public function markAsUnavailable(Driver $driver, ?Eta $eta = null): void
+    public function markAsUnavailable(Driver $driver, ?Car $eta = null): void
     {
         if (!$eta) {
-            $eta = Eta::fifteenMinutes();
+            $eta = now()->addMinutes(15);
         }
 
         Redis::zadd(RedisKey::DriverPoolUnavailable->value, $eta->timestamp, $driver->id);
@@ -63,10 +64,10 @@ class DriverPoolService
         Redis::zrem(RedisKey::DriverPoolOnHold->value, $driver->id);
     }
 
-    public function markAsOnHold(Driver $driver, ?Eta $eta = null): void
+    public function markAsOnHold(Driver $driver, ?Carbon $eta = null): void
     {
         if (!$eta) {
-            $eta = Eta::fiveMinutes();
+            $eta = now()->addMinutes(15);
         }
 
         Redis::zadd(RedisKey::DriverPoolOnHold->value, $eta->timestamp, $driver->id);
