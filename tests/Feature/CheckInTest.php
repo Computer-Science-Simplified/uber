@@ -37,7 +37,7 @@ class CheckInTest extends TestCase
     {
         $driver = Driver::factory()->create();
 
-        $this->driverPool->markAsUnavailable($driver);
+        $this->driverPool->moveToUnavailable($driver);
 
         $this->assertSame(DriverStatus::Unavailable, $this->driverPool->getStatus($driver));
 

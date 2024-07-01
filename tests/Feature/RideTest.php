@@ -212,7 +212,7 @@ class RideTest extends TestCase
             'driver_id' => $driver->id,
         ]);
 
-        $this->driverPool->markAsUnavailable($driver);
+        $this->driverPool->moveToUnavailable($driver);
 
         $this->travelTo('2024-12-01 15:00:00', function () use ($ride, $driver) {
             $this->patchJson(
@@ -243,7 +243,7 @@ class RideTest extends TestCase
             'driver_id' => $driver->id,
         ]);
 
-        $this->driverPool->markAsUnavailable($driver);
+        $this->driverPool->moveToUnavailable($driver);
 
         $this->patchJson(
             route('rides.drop-off', ['ride' => $ride->id]),

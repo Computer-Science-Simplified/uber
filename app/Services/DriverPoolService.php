@@ -42,7 +42,7 @@ class DriverPoolService
         );
     }
 
-    public function markAsAvailable(Driver $driver): void
+    public function moveToAvailable(Driver $driver): void
     {
         Redis::sadd(RedisKey::DriverPoolAvailable->value, $driver->id);
 
@@ -51,7 +51,7 @@ class DriverPoolService
         Redis::zrem(RedisKey::DriverPoolOnHold->value, $driver->id);
     }
 
-    public function markAsUnavailable(Driver $driver, ?Car $eta = null): void
+    public function moveToUnavailable(Driver $driver, ?Car $eta = null): void
     {
         if (!$eta) {
             $eta = now()->addMinutes(15);
@@ -64,7 +64,7 @@ class DriverPoolService
         Redis::zrem(RedisKey::DriverPoolOnHold->value, $driver->id);
     }
 
-    public function markAsOnHold(Driver $driver, ?Carbon $eta = null): void
+    public function moveToOnHold(Driver $driver, ?Carbon $eta = null): void
     {
         if (!$eta) {
             $eta = now()->addMinutes(15);

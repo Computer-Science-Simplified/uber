@@ -41,7 +41,7 @@ class RideController extends Controller
 
         $ride->accepted($driver, $request->getCar());
 
-        $this->driverPool->markAsOnHold($driver);
+        $this->driverPool->moveToOnHold($driver);
 
         return response('', Response::HTTP_NO_CONTENT);
     }
@@ -50,7 +50,7 @@ class RideController extends Controller
     {
         $ride->inProgress();
 
-        $this->driverPool->markAsUnavailable($request->getDriver());
+        $this->driverPool->moveToUnavailable($request->getDriver());
 
         return response('', Response::HTTP_NO_CONTENT);
     }
@@ -59,7 +59,7 @@ class RideController extends Controller
     {
         $ride->finished($request->getLocation());
 
-        $this->driverPool->markAsAvailable($ride->driver);
+        $this->driverPool->moveToAvailable($ride->driver);
 
         return response('', Response::HTTP_NO_CONTENT);
     }

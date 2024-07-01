@@ -40,13 +40,13 @@ class CheckOutTest extends TestCase
 
         switch ($status) {
             case DriverStatus::Available:
-                $this->driverPool->markAsAvailable($driver);
+                $this->driverPool->moveToAvailable($driver);
                 break;
             case DriverStatus::Unavailable:
-                $this->driverPool->markAsUnavailable($driver);
+                $this->driverPool->moveToUnavailable($driver);
                 break;
             case DriverStatus::OnHold:
-                $this->driverPool->markAsOnHold($driver);
+                $this->driverPool->moveToOnHold($driver);
                 break;
         }
 

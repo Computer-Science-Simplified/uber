@@ -104,9 +104,9 @@ class GetClosestDriversTest extends TestCase
 
         $this->driverAvailableAt($otherDriverAvailable, $otherDriverLocation);
 
-        $this->driverPool->markAsUnavailable($closestDriverNotAvailable);
+        $this->driverPool->moveToUnavailable($closestDriverNotAvailable);
 
-        $this->driverPool->markAsOnHold($nearByDriverOnHold);
+        $this->driverPool->moveToOnHold($nearByDriverOnHold);
 
         $driver = $this->locationService->getClosestDrivers($ride->pick_up_location, DriverStatus::Available)->first();
 

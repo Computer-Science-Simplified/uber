@@ -12,7 +12,7 @@ class DriverController extends Controller
 {
     public function checkIn(Driver $driver, DriverPoolService $driverPool)
     {
-        $driverPool->markAsAvailable($driver);
+        $driverPool->moveToAvailable($driver);
 
         return response('', Response::HTTP_NO_CONTENT);
     }
