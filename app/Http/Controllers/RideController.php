@@ -10,7 +10,6 @@ use App\Http\Resources\RideResource;
 use App\Jobs\NotifyClosestAvailableDriversJob;
 use App\Models\Ride;
 use App\Services\DriverPoolService;
-use App\Services\RideStateMachine;
 use Symfony\Component\HttpFoundation\Response;
 
 class RideController extends Controller
@@ -41,9 +40,7 @@ class RideController extends Controller
     {
         $driver = $request->getDriver();
 
-        $rideStateMachine = new RideStateMachine($ride);
-
-        if ($rideStateMachine->can('accept')) {
+        if ($ride->state_machine->can('accept')) {
             $ride->accepted($driver, $request->getCar());
         }
 
@@ -54,9 +51,7 @@ class RideController extends Controller
 
     public function pickUp(Ride $ride, PickUpRequest $request)
     {
-        $rideStateMachine = new RideStateMachine($ride);
-
-        if ($rideStateMachine->can('progress')) {
+        if ($ride->state_machine->can('progress')) {
             $ride->inProgress();
         }
 
@@ -67,9 +62,7 @@ class RideController extends Controller
 
     public function dropOff(Ride $ride, DropOffRequest $request)
     {
-        $rideStateMachine = new RideStateMachine($ride);
-
-        if ($rideStateMachine->can('finish')) {
+        if ($ride->state_machine->can('finish')) {
             $ride->finished($request->getLocation());
         }
 

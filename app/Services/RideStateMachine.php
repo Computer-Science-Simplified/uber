@@ -10,14 +10,10 @@ use Finite\StateMachine\StateMachine;
 
 class RideStateMachine
 {
-    private Ride $ride;
-
     private StateMachine $stateMachine;
 
     public function __construct(Ride $ride)
     {
-        $this->ride = $ride;
-
         $this->stateMachine = new StateMachine();
 
         $this->stateMachine->addState(new State(RideStatus::Waiting->value, StateInterface::TYPE_INITIAL));

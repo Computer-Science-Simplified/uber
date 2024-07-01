@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\RideStatus;
+use App\Services\RideStateMachine;
 use App\ValueObjects\Location;
 use Finite\StatefulInterface;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -57,6 +58,13 @@ class Ride extends Model implements StatefulInterface
                     return DB::raw("ST_GeomFromText('POINT({$value->longitude} {$value->latitude})')");
                 }
             },
+        );
+    }
+
+    public function stateMachine(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => new RideStateMachine($this),
         );
     }
 
